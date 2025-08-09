@@ -20,7 +20,7 @@ services:
     <<: *kafka-common
     restart: always
     ports:
-      - '127.0.0.1:9094:9094'
+      - 127.0.0.1:9094:9094
     environment:
       <<: *kafka-common-env
       KAFKA_CFG_NODE_ID: 0
@@ -46,7 +46,7 @@ services:
     <<: *kafka-common
     restart: always
     ports:
-      - '127.0.0.1:9096:9094'
+      - 127.0.0.1:9096:9094
     environment:
       <<: *kafka-common-env
       KAFKA_CFG_NODE_ID: 2
@@ -85,7 +85,7 @@ services:
     hostname: postgres
     container_name: postgres
     ports:
-      - '127.0.0.5432:5432'
+      - 127.0.0.1:5432:5432
     volumes:
       - ./postgres/user-config.conf:/etc/postgresql/postgresql.conf
     environment:
