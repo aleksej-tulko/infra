@@ -110,7 +110,7 @@ services:
       - schema-registry
       - postgres
     environment:
-      CONNECT_BOOTSTRAP_SERVERS: kafka-0:9092
+      CONNECT_BOOTSTRAP_SERVERS: kafka-0:9092,kafka-1:9092,kafka-2:9092
       CONNECT_REST_PORT: 8083
       CONNECT_GROUP_ID: 'kafka-connect'
       CONNECT_REST_ADVERTISED_HOST_NAME: 'localhost'
