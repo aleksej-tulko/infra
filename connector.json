@@ -19,6 +19,6 @@
    "skipped.operations": "none",
    "snapshot.mode": "initial",
    "signal.kafka.topic": "incr_signal",
-   "signal.kafka.bootstrap.servers": "localhost:9094,localhost:9095,localhost:9096"
+   "signal.kafka.bootstrap.servers": "kafka-0:9092,kafka-1:9092,kafka-2:9092"
  }
 }
