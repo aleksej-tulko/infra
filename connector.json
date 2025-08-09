@@ -19,7 +19,6 @@
    "skipped.operations": "none",
    "snapshot.mode": "initial",
    "signal.kafka.topic": "incr_signal",
-   "signal.kafka.bootstrap.servers": "kafka-0:9092,kafka-1:9092,kafka-2:9092",
-   "foo": "bar"
+   "signal.kafka.bootstrap.servers": "kafka-0:9092,kafka-1:9092,kafka-2:9092"
  }
 }
