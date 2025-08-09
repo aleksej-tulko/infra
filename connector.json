@@ -12,10 +12,13 @@
    "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
    "transforms.unwrap.drop.tombstones": "false",
    "transforms.unwrap.delete.handling.mode": "rewrite",
-   "topic.prefix": "customers",
+   "topic.prefix": "online",
    "topic.creation.enable": "true",
    "topic.creation.default.replication.factor": "-1",
    "topic.creation.default.partitions": "-1",
-   "skipped.operations": "none"
+   "skipped.operations": "none",
+   "snapshot.mode": "initial",
+   "signal.kafka.topic": "incr_signal",
+   "signal.kafka.bootstrap.servers": "localhost:9094,localhost:9095,localhost:9096"
  }
 }
