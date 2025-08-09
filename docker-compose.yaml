@@ -95,7 +95,7 @@ services:
 
   kafka-connect:
     build:
-      context: ./kafka-connect
+      context: ../kafka-connect
     ports:
       - '8083:8083'
       - '9875:9875'
