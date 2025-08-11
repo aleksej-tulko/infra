@@ -77,7 +77,6 @@ def get_users_by_id():
 def consume_infinite_loop(consumer: Consumer) -> None:
     """Получение сообщений из брокера по одному."""
     consumer.subscribe([TOPIC])
-    print(TOPIC)
     try:
         while True:
             msg = consumer.poll(0.1)
