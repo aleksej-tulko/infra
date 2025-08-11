@@ -38,8 +38,12 @@ logger.addHandler(handler)
 class LoggerMsg:
     """Сообщения для логгирования."""
 
-    BLOCK_RECORD = ('Заказчик {client} заблокировал '
-                    'отправителей {blocked_users}.')
+    ORDER_RECORD = ('Клиент {client} заказал '
+                    '{product_name}. Дата: '
+                    '{date}.')
+
+
+msg = LoggerMsg
 
 
 mandatory_message_fields = [
@@ -95,13 +99,14 @@ def consume_orders(consumer: Consumer) -> None:
             ):
                 consumer.commit(asynchronous=False)
 
-                print(
-                    f'Клиент {user_id_map[value.get('user_id')]} '
-                    f'заказал {value.get('product_name')}. '
-                    f'Дата: {datetime.fromtimestamp(
+                logger.info(msg=msg.ORDER_RECORD.format(
+                    client=user_id_map[value.get('user_id')],
+                    product_name=value.get('product_name'),
+                    date=datetime.fromtimestamp(
                         value.get('order_date') / 1e6,
                         tz=timezone.utc
-                    ).strftime('%Y-%m-%d %H:%M:%S')}.'
+                    ).strftime('%Y-%m-%d %H:%M:%S')
+                    )
                 )
             else:
                 print('Ошибка.')
