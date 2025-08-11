@@ -41,14 +41,27 @@ class LoggerMsg:
     ORDER_RECORD = ('Клиент {client} заказал '
                     '{product_name}. Дата: '
                     '{date}.')
+    USER_RECORD = ('Пользователь {user}, '
+                   'email {email} '
+                   'добавлен {date}')
 
 
 msg = LoggerMsg
 
 
-mandatory_message_fields = [
-    "id", "user_id",
-    "product_name", "quantity",
+mandatory_orders_fields = [
+    "id",
+    "user_id",
+    "product_name",
+    "quantity",
+    "order_date"
+]
+
+mandatory_users_fields = [
+    "id",
+    "name",
+    "email",
+    "created_at",
     "order_date"
 ]
 
@@ -94,7 +107,7 @@ def consume_orders(consumer: Consumer) -> None:
             value = json.loads(msg.value().decode('utf-8')).get('payload', {})
 
             if isinstance(value, dict) and (
-                all(field in mandatory_message_fields
+                all(field in mandatory_orders_fields
                     for field in value.keys())
             ):
                 consumer.commit(asynchronous=False)
@@ -108,8 +121,24 @@ def consume_orders(consumer: Consumer) -> None:
                     ).strftime('%Y-%m-%d %H:%M:%S')
                     )
                 )
+            elif isinstance(value, dict) and (
+                all(field in mandatory_users_fields
+                    for field in value.keys())
+            ):
+                consumer.commit(asynchronous=False)
+
+                logger.info(msg=msg.USER_RECORDS.format(
+                    user=value.get('name'),
+                    email=value.get('email'),
+                    date=datetime.fromtimestamp(
+                        value.get('created_at') / 1e6,
+                        tz=timezone.utc
+                    ).strftime('%Y-%m-%d %H:%M:%S')
+                    )
+                )
             else:
-                print('Ошибка.')
+                print('Error')
+
     except KafkaException as KE:
         raise KafkaError(KE)
     finally:
