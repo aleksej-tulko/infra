@@ -1,7 +1,7 @@
 import logging
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 import json
 from confluent_kafka import (
@@ -97,7 +97,10 @@ def consume_infinite_loop(consumer: Consumer) -> None:
                 print(
                     f'Клиент {user_id_map[value.get('user_id')]} '
                     f'заказал {value.get('product_name')}. '
-                    f'Дата: {datetime.fromtimestamp(value.get('order_date') / 1e6)}.'
+                    f'Дата: {datetime.fromtimestamp(
+                        value.get('order_date') / 1e6,
+                        tz=timezone.utc
+                    )}.'
                 )
             else:
                 print('Ошибка.')
