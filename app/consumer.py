@@ -26,7 +26,7 @@ mandatory_message_fields = [
 
 conf = {
     "bootstrap.servers":
-    "kafka_1:9092,kafka_2:9094,kafka_3:9096",
+    "localhost:9094,localhost:9095,localhost:9096",
     "auto.offset.reset": AUTOOFF_RESET,
     "enable.auto.commit": ENABLE_AUTOCOMMIT,
     "session.timeout.ms": SESSION_TIME_MS,
@@ -70,6 +70,4 @@ def consume_infinite_loop(consumer: Consumer) -> None:
 
 if __name__ == '__main__':
     """Основной код."""
-    print('jeh')
     consume_infinite_loop(consumer=consumer)
-
