@@ -119,6 +119,7 @@ def consume_orders(consumer: Consumer) -> None:
                 id = value.get('user_id')
                 name = user_id_map.get(value.get('user_id'))
                 if name is None:
+                    print('chech')
                     name = fetch_user_name(id)
                     if name:
                         user_id_map[id] = name
