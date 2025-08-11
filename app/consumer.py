@@ -66,11 +66,12 @@ conn = psycopg2.connect(
     password=PASSWORD
 )
 cur = conn.cursor()
-query = cur.execute('show tables;')
+cur.execute('select id, user from users;')
+rows = cur.fetchall()
 
 
 def get_users_by_id():
-    print(query)
+    print(rows)
 
 
 def consume_infinite_loop(consumer: Consumer) -> None:
