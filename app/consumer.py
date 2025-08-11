@@ -1,12 +1,42 @@
 import os
 
+import json
+from confluent_kafka import (
+    Consumer, KafkaError, KafkaException
+)
+from dotenv import load_dotenv
+
+load_dotenv()
+
+ACKS_LEVEL = os.getenv('ACKS_LEVEL', 'all')
+AUTOOFF_RESET = os.getenv('AUTOCOMMIT_RESET', 'earliest')
+ENABLE_AUTOCOMMIT = os.getenv('ENABLE_AUTOCOMMIT', False)
+FETCH_MIN_BYTES = os.getenv('FETCH_MIN_BYTES', 1)
+FETCH_WAIT_MAX_MS = os.getenv('FETCH_WAIT_MAX_MS', 100)
+RETRIES = os.getenv('RETRIES', '3')
+SESSION_TIME_MS = os.getenv('SESSION_TIME_MS', 1_000)
+LINGER_MS = os.getenv('LINGER_MS', 0)
 TOPIC = os.getenv('TOPIC', 'practice')
 
 mandatory_message_fields = [
-    "sender_id", "sender_name",
-    "recipient_id", "recipient_name",
-    "amount", "content"
+    "id", "user_id",
+    "product_name", "quantity",
+    "order_date"
 ]
+
+conf = {
+    "bootstrap.servers":
+    "kafka_1:9092,kafka_2:9094,kafka_3:9096",
+    "auto.offset.reset": AUTOOFF_RESET,
+    "enable.auto.commit": ENABLE_AUTOCOMMIT,
+    "session.timeout.ms": SESSION_TIME_MS,
+    "group.id": "online",
+    "fetch.min.bytes": FETCH_MIN_BYTES,
+    "fetch.wait.max.ms": FETCH_WAIT_MAX_MS
+}
+
+consumer = Consumer(conf)
+
 
 def consume_infinite_loop(consumer: Consumer) -> None:
     """Получение сообщений из брокера по одному."""
@@ -36,3 +66,8 @@ def consume_infinite_loop(consumer: Consumer) -> None:
         raise KafkaError(KE)
     finally:
         consumer.close()
+
+
+if __name__ == '__main__':
+    """Основной код."""
+    consume_infinite_loop(consumer=consumer)
