@@ -66,12 +66,13 @@ conn = psycopg2.connect(
     password=PASSWORD
 )
 cur = conn.cursor()
-cur.execute('select id, name from users;')
+cur.execute('select name, id from users;')
 rows = cur.fetchall()
 
+user_id_map = {}
 
-def get_users_by_id():
-    print(rows)
+for name, id in rows[0]:
+    user_id_map[id] = name
 
 
 def consume_infinite_loop(consumer: Consumer) -> None:
@@ -92,11 +93,8 @@ def consume_infinite_loop(consumer: Consumer) -> None:
             ):
                 consumer.commit(asynchronous=False)
 
-                print(get_users_by_id())
-
                 print(
-                    f'Получено сообщение: {msg.key().decode('utf-8')}, '
-                    f'{value}, offset={msg.offset()}. '
+                    f'Клиент {user_id_map[value.get('user_id')]}, offset={msg.offset()}. '
                     f'Размер сообщения - {len(msg.value())} байтов.'
                 )
             else:
