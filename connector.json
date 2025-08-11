@@ -3,7 +3,7 @@
  "config": {
    "max.batch.size": 100,
    "producer.override.compression.type": "lz4",
-   "producer.override.linger.ms": "3000",
+   "producer.override.linger.ms": "30000",
    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
    "database.hostname": "postgres",
    "database.port": "5432",
