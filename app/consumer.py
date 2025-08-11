@@ -124,16 +124,16 @@ def consume_orders(consumer: Consumer) -> None:
                         user_id_map[id] = name
                     else:
                         name = f"id={id}"
-                    logger.info(msg=LoggerMsg.ORDER_RECORD.format(
-                        client=name,
-                        product_name=value.get('product_name'),
-                        date=datetime.fromtimestamp(
-                            value.get('order_date') / 1e6,
-                            tz=timezone.utc
-                            ).strftime('%Y-%m-%d %H:%M:%S')
-                        )
+                logger.info(msg=LoggerMsg.ORDER_RECORD.format(
+                    client=name,
+                    product_name=value.get('product_name'),
+                    date=datetime.fromtimestamp(
+                        value.get('order_date') / 1e6,
+                        tz=timezone.utc
+                        ).strftime('%Y-%m-%d %H:%M:%S')
                     )
-                    consumer.commit(asynchronous=False)
+                )
+                consumer.commit(asynchronous=False)
             elif msg.topic() == USERS and (
                 all(field in mandatory_users_fields
                     for field in value.keys())
