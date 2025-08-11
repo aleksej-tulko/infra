@@ -50,6 +50,7 @@ def consume_infinite_loop(consumer: Consumer) -> None:
                 continue
 
             value = json.loads(msg.value().decode('utf-8'))
+            print(value.keys())
             if isinstance(value, dict) and (
                 all(field in mandatory_message_fields
                     for field in value.keys())
