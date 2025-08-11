@@ -1,13 +1,16 @@
 {
  "name": "pg-connector",
  "config": {
+   "max.batch.size": 100,
+   "producer.compression.type": "lz4",
+   "producer.linger.ms": "30000",
    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
    "database.hostname": "postgres",
    "database.port": "5432",
    "database.user": "postgres-user",
    "database.password": "postgres-pw",
    "database.dbname": "online",
-   "table.whitelist": "online.users,online.orders",
+   "schema.include.list": ["online.users,online.orders"],
    "transforms": "unwrap",
    "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
    "transforms.unwrap.drop.tombstones": "false",
