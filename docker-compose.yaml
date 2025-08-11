@@ -93,7 +93,6 @@ services:
       - kafka-0
       - kafka-1
       - kafka-2
-      - schema-registry
       - postgres
     environment:
       CONNECT_BOOTSTRAP_SERVERS: kafka-0:9092,kafka-1:9092,kafka-2:9092
