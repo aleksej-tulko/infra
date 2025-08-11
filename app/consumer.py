@@ -75,22 +75,25 @@ conf = {
 
 consumer = Consumer(conf)
 
-conn = psycopg2.connect(
-    host='localhost',
-    dbname=DBNAME,
-    user=USER,
-    password=PASSWORD
-)
-cur = conn.cursor()
-cur.execute('select name, id from users;')
-rows = cur.fetchall()
-cur.close()
-conn.close()
-
 user_id_map = {}
 
-for name, id in rows:
-    user_id_map[id] = name
+
+def fetch_user_name(user_id: int) -> str | None:
+    try:
+        with psycopg2.connect(
+            host='localhost',
+            dbname=DBNAME, user=USER,
+            password=PASSWORD
+        ) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT name FROM users WHERE id = %s;", (user_id,)
+                )
+                r = cur.fetchone()
+                return r[0] if r else None
+    except Exception as e:
+        logger.warning("DB lookup failed for user_id=%s: %s", user_id, e)
+        return None
 
 
 def consume_orders(consumer: Consumer) -> None:
@@ -105,26 +108,39 @@ def consume_orders(consumer: Consumer) -> None:
 
             value = json.loads(msg.value().decode('utf-8')).get('payload', {})
 
-            if msg.topic() == ORDERS and isinstance(value, dict) and (
+            if not isinstance(value, dict):
+                continue
+
+            if msg.topic() == ORDERS and (
                 all(field in mandatory_orders_fields
                     for field in value.keys())
             ):
-                consumer.commit(asynchronous=False)
 
-                logger.info(msg=LoggerMsg.ORDER_RECORD.format(
-                    client=user_id_map[value.get('user_id')],
-                    product_name=value.get('product_name'),
-                    date=datetime.fromtimestamp(
-                        value.get('order_date') / 1e6,
-                        tz=timezone.utc
-                        ).strftime('%Y-%m-%d %H:%M:%S')
+                id = value.get('user_id')
+                name = user_id_map.get(id)
+                if name is None:
+                    name = fetch_user_name(id)
+                    if name:
+                        user_id_map[id] = name
+                    else:
+                        name = f"id={id}"
+                    logger.info(msg=LoggerMsg.ORDER_RECORD.format(
+                        client=name,
+                        product_name=value.get('product_name'),
+                        date=datetime.fromtimestamp(
+                            value.get('order_date') / 1e6,
+                            tz=timezone.utc
+                            ).strftime('%Y-%m-%d %H:%M:%S')
+                        )
                     )
-                )
-            elif msg.topic() == USERS and isinstance(value, dict) and (
+                    consumer.commit(asynchronous=False)
+            elif msg.topic() == USERS and (
                 all(field in mandatory_users_fields
                     for field in value.keys())
             ):
 
+                id = value.get('id')
+                name = value.get('name')
                 if id is not None and name:
                     user_id_map[id] = name
                     logger.info(msg=LoggerMsg.USER_RECORD.format(
