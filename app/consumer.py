@@ -41,11 +41,10 @@ consumer = Consumer(conf)
 def consume_infinite_loop(consumer: Consumer) -> None:
     """Получение сообщений из брокера по одному."""
     consumer.subscribe([TOPIC])
+    print(TOPIC)
     try:
         while True:
             msg = consumer.poll(0.1)
-
-            print(msg)
 
             if msg is None or msg.error():
                 continue
