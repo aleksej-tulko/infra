@@ -66,12 +66,11 @@ conn = psycopg2.connect(
     password=PASSWORD
 )
 cur = conn.cursor()
-query = cur.execute("select * from users;")
+query = cur.execute('select id, user from users;')
 
 
 def get_users_by_id():
     print(query)
-
 
 
 def consume_infinite_loop(consumer: Consumer) -> None:
@@ -92,6 +91,8 @@ def consume_infinite_loop(consumer: Consumer) -> None:
                     for field in value.keys())
             ):
                 consumer.commit(asynchronous=False)
+
+                print(get_users_by_id())
 
                 print(
                     f'Получено сообщение: {msg.key().decode('utf-8')}, '
