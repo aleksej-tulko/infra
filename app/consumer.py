@@ -61,7 +61,7 @@ consumer = Consumer(conf)
 
 conn = psycopg2.connect(
     host='localhost',
-    dbname=DBNAME,
+    dbname='users',
     user=USER,
     password=PASSWORD
 )
