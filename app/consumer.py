@@ -99,8 +99,8 @@ def consume_infinite_loop(consumer: Consumer) -> None:
                     f'заказал {value.get('product_name')}. '
                     f'Дата: {datetime.fromtimestamp(
                         value.get('order_date') / 1e6,
-                        tz=None
-                    )}.'
+                        tz=timezone.utc
+                    ).strftime('%Y-%m-%d %H:%M:%S')}.'
                 )
             else:
                 print('Ошибка.')
