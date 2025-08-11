@@ -46,9 +46,6 @@ class LoggerMsg:
                    'добавлен {date}')
 
 
-msg = LoggerMsg
-
-
 mandatory_orders_fields = [
     "id",
     "user_id",
@@ -112,7 +109,7 @@ def consume_orders(consumer: Consumer) -> None:
             ):
                 consumer.commit(asynchronous=False)
 
-                logger.info(msg=msg.ORDER_RECORD.format(
+                logger.info(msg=LoggerMsg.ORDER_RECORD.format(
                     client=user_id_map[value.get('user_id')],
                     product_name=value.get('product_name'),
                     date=datetime.fromtimestamp(
@@ -127,7 +124,7 @@ def consume_orders(consumer: Consumer) -> None:
             ):
                 consumer.commit(asynchronous=False)
 
-                logger.info(msg=msg.USER_RECORD.format(
+                logger.info(msg=LoggerMsg.USER_RECORD.format(
                     user=value.get('name'),
                     email=value.get('email'),
                     date=datetime.fromtimestamp(
