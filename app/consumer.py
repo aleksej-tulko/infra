@@ -20,7 +20,8 @@ FETCH_WAIT_MAX_MS = os.getenv('FETCH_WAIT_MAX_MS', 100)
 RETRIES = os.getenv('RETRIES', '3')
 SESSION_TIME_MS = os.getenv('SESSION_TIME_MS', 1_000)
 LINGER_MS = os.getenv('LINGER_MS', 0)
-TOPIC = os.getenv('TOPIC', 'practice')
+ORDERS = os.getenv('ORDERS', '')
+USERS = os.getenv('USERS', '')
 USER = os.getenv('POSTGRES_USER', '')
 PASSWORD = os.getenv('POSTGRES_PASSWORD', '')
 DBNAME = os.getenv('POSTGRES_DB', '')
@@ -76,9 +77,9 @@ for name, id in rows:
     user_id_map[id] = name
 
 
-def consume_infinite_loop(consumer: Consumer) -> None:
+def consume_orders(consumer: Consumer) -> None:
     """Получение сообщений из брокера по одному."""
-    consumer.subscribe([TOPIC])
+    consumer.subscribe([ORDERS, USERS])
     try:
         while True:
             msg = consumer.poll(0.1)
@@ -113,4 +114,4 @@ def consume_infinite_loop(consumer: Consumer) -> None:
 if __name__ == '__main__':
     """Основной код."""
     while True:
-        consume_infinite_loop(consumer=consumer)
+        consume_orders(consumer=consumer)
