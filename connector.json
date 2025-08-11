@@ -2,8 +2,8 @@
  "name": "pg-connector",
  "config": {
    "max.batch.size": 1,
-   "producer.compression.type": "lz4",
-   "producer.linger.ms": "30",
+   "producer.override.compression.type": "lz4",
+   "producer.override.linger.ms": "30",
    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
    "database.hostname": "postgres",
    "database.port": "5432",
