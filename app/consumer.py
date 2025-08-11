@@ -116,17 +116,16 @@ def consume_orders(consumer: Consumer) -> None:
                     for field in value.keys())
             ):
 
-                # id = value.get('user_id')
-                # name = user_id_map.get(value.get('user_id'))
-                # if name is None:
-                #     print('chech')
-                #     name = fetch_user_name(id)
-                #     if name:
-                #         user_id_map[id] = name
-                #     else:
-                #         name = f'id={id}'
+                id = value.get('user_id')
+                name = user_id_map.get(value.get('user_id'))
+                if not name:
+                    name = fetch_user_name(id)
+                    if name:
+                        user_id_map[id] = name
+                    else:
+                        name = f'id={id}'
                 logger.info(msg=LoggerMsg.ORDER_RECORD.format(
-                    client=user_id_map.get(value.get('user_id')),
+                    client=name,
                     product_name=value.get('product_name'),
                     date=datetime.fromtimestamp(
                         value.get('order_date') / 1e6,
