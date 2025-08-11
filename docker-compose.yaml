@@ -66,20 +66,6 @@ services:
     networks:
       - proxynet
 
-  schema-registry:
-    image: bitnami/schema-registry:7.6
-    ports:
-      - 127.0.0.1:8081:8081
-    depends_on:
-      - kafka-0
-      - kafka-1
-      - kafka-2
-    environment:
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-      SCHEMA_REGISTRY_KAFKA_BROKERS: PLAINTEXT://kafka-0:9092,PLAINTEXT://kafka-1:9092,PLAINTEXT://kafka-2:9092
-    networks:
-      - proxynet
-
   postgres:
     image: debezium/postgres:16
     hostname: postgres
@@ -121,12 +107,6 @@ services:
       CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 2
       CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 2
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 2
-
-      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
 
       CONNECT_PLUGIN_PATH: /usr/share/java,/etc/kafka-connect/jars
 
