@@ -93,8 +93,6 @@ def consume_infinite_loop(consumer: Consumer) -> None:
             ):
                 consumer.commit(asynchronous=False)
 
-                logg
-
                 print(
                     f'Получено сообщение: {msg.key().decode('utf-8')}, '
                     f'{value}, offset={msg.offset()}. '
