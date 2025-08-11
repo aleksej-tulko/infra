@@ -1,10 +1,13 @@
+import logging
 import os
+import sys
 
 import json
 from confluent_kafka import (
     Consumer, KafkaError, KafkaException
 )
 from dotenv import load_dotenv
+import psycopg2
 
 load_dotenv()
 
@@ -17,6 +20,22 @@ RETRIES = os.getenv('RETRIES', '3')
 SESSION_TIME_MS = os.getenv('SESSION_TIME_MS', 1_000)
 LINGER_MS = os.getenv('LINGER_MS', 0)
 TOPIC = os.getenv('TOPIC', 'practice')
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+
+class LoggerMsg:
+    """Сообщения для логгирования."""
+
+    BLOCK_RECORD = ('Заказчик {client} заблокировал '
+                    'отправителей {blocked_users}.')
+
 
 mandatory_message_fields = [
     "id", "user_id",
@@ -37,6 +56,14 @@ conf = {
 
 consumer = Consumer(conf)
 
+conn = psycopg2.Connection.connect("")
+cur = conn.execute("select now()")
+
+
+def get_users_by_id():
+    print(conn)
+
+
 
 def consume_infinite_loop(consumer: Consumer) -> None:
     """Получение сообщений из брокера по одному."""
@@ -56,6 +83,8 @@ def consume_infinite_loop(consumer: Consumer) -> None:
                     for field in value.keys())
             ):
                 consumer.commit(asynchronous=False)
+
+                logg
 
                 print(
                     f'Получено сообщение: {msg.key().decode('utf-8')}, '
