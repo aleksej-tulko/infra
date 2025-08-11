@@ -70,4 +70,5 @@ def consume_infinite_loop(consumer: Consumer) -> None:
 
 if __name__ == '__main__':
     """Основной код."""
-    consume_infinite_loop(consumer=consumer)
+    while True:
+        consume_infinite_loop(consumer=consumer)
