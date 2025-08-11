@@ -49,81 +49,68 @@ Kafka UI для отслеживания изменения в топика до
     ```
 5. Запусить сервисы:
     ```bash
-    
+    docker compose up -d
     ```
 
-6. Создать docker network:
+6. Создать схему в БД и добавить пользователей:
     ```bash
-    sudo docker network create kafka-network
+    docker exec -it postgres psql -h 127.0.0.1 -U postgres-user -d online
+
+    CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+
+    CREATE TABLE orders (
+        id SERIAL PRIMARY KEY,
+        user_id INT REFERENCES users(id),
+        product_name VARCHAR(100),
+        quantity INT,
+        order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    INSERT INTO users (name, email) VALUES ('John Doe', 'john@example.com');
+    INSERT INTO users (name, email) VALUES ('Jane Smith', 'jane@example.com');
+    INSERT INTO users (name, email) VALUES ('Alice Johnson', 'alice@example.com');
+    INSERT INTO users (name, email) VALUES ('Bob Brown', 'bob@example.com');
     ```
 
-7. Запустить сервисы:
+7. Создать коннектор:
     ```bash
-    sudo docker compose up zookeeper kafka_1 kafka_2 kafka_3 kafka-ui -d
-    ```
-    При первом запуске до создания топика программу **app** запускать не надо. После создания топика при последуюший перезапусках можно использовать
-    ```bash
-    sudo docker compose up -d
+    curl -X POST -H 'Content-Type: application/json' --data @connector.json http://localhost:8083/connectors
     ```
 
-8. Создать нужные топики:
+8. Создать заказы:
     ```bash
-    sudo docker exec -it compose-kafka_1-1 kafka-topics --create --topic filtered_messages --partitions 1 --replication-factor 2 --bootstrap-server localhost:9092 && sudo docker exec -it compose-kafka_1-1 kafka-topics --create --topic blocked_users --partitions 1 --replication-factor 2 --bootstrap-server localhost:9092 && sudo docker exec -it compose-kafka_1-1 kafka-topics --create --topic messages --partitions 1 --replication-factor 2 --bootstrap-server localhost:9092
+    docker exec -it postgres psql -h 127.0.0.1 -U postgres-user -d online
+
+    WITH u AS (
+    SELECT id, row_number() OVER (ORDER BY id) AS rn, count(*) OVER () AS c
+    FROM users
+    ),
+    g AS (
+    SELECT generate_series(1, 1000000) AS i
+    )
+    INSERT INTO orders (user_id, product_name, quantity)
+    SELECT
+    u.id,
+    'Product_' || g.i,
+    (g.i % 5) + 1
+    FROM g
+    JOIN u ON u.rn = ((g.i - 1) % u.c) + 1;
     ```
 
-9. Спуститься обратно в директорию kafka2/ и оздать рабочее окружение и активировать его:
+9. Создать рабочее окружение и запустить консюера
     ```bash
-    cd ../
     python3 -m venv venv
     source venv/bin/activate
-    ```
-10. Установить зависимости:
-    ```bash
     pip install -r requirements.txt
+    cd app
+    python3 consumer.py
     ```
-
-11. Запустить программу для сортировки и цензуры сообщений:
-    ```bash
-    faust -A kafka_streams worker -l INFO
-    ```
-
-12. В другом окне терминала добавить запрещенные слова:
-
-    ```bash
-    echo '{"words": ["loh", "durak", "chert"]}' | sudo docker exec -i compose-kafka_1-1 kafka-console-producer --broker-list localhost:9092 --topic bad_words
-    ```
-
-    Списки можно менять, это просто пример.
-
-13. Добавить список блокировок:
-    ```bash
-    echo '{"blocker":"clown", "blocked":["dodik", "spammer"]}' | sudo docker exec -i compose-kafka_1-1 kafka-console-producer --broker-list localhost:9092 --topic blocked_users
-    echo '{"blocker":"spammer", "blocked":[]}' | sudo docker exec -i compose-kafka_1-1 kafka-console-producer --broker-list localhost:9092 --topic blocked_users
-    echo '{"blocker":"dodik", "blocked":["spammer", "payaso"]}' | sudo docker exec -i compose-kafka_1-1 kafka-console-producer --broker-list localhost:9092 --topic blocked_users
-    echo '{"blocker":"payaso", "blocked":["spammer"]}' | sudo docker exec -i compose-kafka_1-1 kafka-console-producer --broker-list localhost:9092 --topic blocked_users
-    ```
-
-    Списки можно менять, это просто пример.
-
-
-14. Проверить фильтрацию сообщений:
-
-    ```bash
-    echo '{"sender_id":228,"sender_name":"clown","recipient_id":69,"recipient_name":"dodik","amount":1.75,"content":"loh"}' | sudo docker exec -i compose-kafka_1-1 kafka-console-producer --broker-list localhost:9092 --topic messages
-    echo '{"sender_id":228,"sender_name":"dodik","recipient_id":69,"recipient_name":"payaso","amount":1.75,"content":"durak"}' | sudo docker exec -i compose-kafka_1-1 kafka-console-producer --broker-list localhost:9092 --topic messages
-    echo '{"sender_id":228,"sender_name":"payaso","recipient_id":69,"recipient_name":"spammer","amount":1.75,"content":"chert"}' | sudo docker exec -i compose-kafka_1-1 kafka-console-producer --broker-list localhost:9092 --topic messages
-    echo '{"sender_id":228,"sender_name":"clown","recipient_id":69,"recipient_name":"dodik","amount":1.75,"content":"labubu"}' | sudo docker exec -i compose-kafka_1-1 kafka-console-producer --broker-list localhost:9092 --topic messages
-    ```
-
-    Ожидаемый результат: три первый сообщения будут зацензурированы, четвертое - нет.
-
-15. Запустить генератор сообщений.
-    ```bash
-    sudo docker compose up app -d
-    ```
-
-16. Проверить работу блокировок из пункта 13, открыв топик filtered_messages. Сообщения от отправителя spammer не доходят никому, до получателя spammer доходят сообщения от всех отправителей.
-
 
 ## Автор
 [Aliaksei Tulko](https://github.com/aleksej-tulko)
