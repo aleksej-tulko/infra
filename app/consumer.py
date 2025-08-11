@@ -20,6 +20,9 @@ RETRIES = os.getenv('RETRIES', '3')
 SESSION_TIME_MS = os.getenv('SESSION_TIME_MS', 1_000)
 LINGER_MS = os.getenv('LINGER_MS', 0)
 TOPIC = os.getenv('TOPIC', 'practice')
+USER = os.getenv('POSTGRES_USER', '')
+PASSWORD = os.getenv('POSTGRES_PASSWORD', '')
+DBNAME = os.getenv('POSTGRES_DB', '')
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -56,8 +59,12 @@ conf = {
 
 consumer = Consumer(conf)
 
-conn = psycopg2.connect("")
-cur = conn.execute("select now()")
+conn = psycopg2.connect(
+    dbname=DBNAME,
+    user=USER,
+    password=PASSWORD
+)
+cur = conn.execute("select * from users;")
 
 
 def get_users_by_id():
