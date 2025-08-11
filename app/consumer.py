@@ -127,7 +127,7 @@ def consume_orders(consumer: Consumer) -> None:
             ):
                 consumer.commit(asynchronous=False)
 
-                logger.info(msg=msg.USER_RECORDS.format(
+                logger.info(msg=msg.USER_RECORD.format(
                     user=value.get('name'),
                     email=value.get('email'),
                     date=datetime.fromtimestamp(
