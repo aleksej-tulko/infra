@@ -126,7 +126,7 @@ def consume_orders(consumer: Consumer) -> None:
                 #     else:
                 #         name = f'id={id}'
                 logger.info(msg=LoggerMsg.ORDER_RECORD.format(
-                    client=name,
+                    client=user_id_map.get(value.get('user_id')),
                     product_name=value.get('product_name'),
                     date=datetime.fromtimestamp(
                         value.get('order_date') / 1e6,
