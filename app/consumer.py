@@ -65,11 +65,12 @@ conn = psycopg2.connect(
     user=USER,
     password=PASSWORD
 )
-cur = conn.execute("select * from users;")
+cur = conn.cursor()
+query = cur.execute("select * from users;")
 
 
 def get_users_by_id():
-    print(conn)
+    print(query)
 
 
 
