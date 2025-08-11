@@ -53,7 +53,7 @@ def consume_infinite_loop(consumer: Consumer) -> None:
             print(value.keys())
             if isinstance(value, dict) and (
                 all(field in mandatory_message_fields
-                    for field in value.keys())
+                    for field in value.get('payload', {}.keys()))
             ):
                 consumer.commit(asynchronous=False)
 
