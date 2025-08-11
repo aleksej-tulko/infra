@@ -71,7 +71,7 @@ rows = cur.fetchall()
 
 user_id_map = {}
 
-for name, id in rows[0]:
+for name, id in rows:
     user_id_map[id] = name
 
 
