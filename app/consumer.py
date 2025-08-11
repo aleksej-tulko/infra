@@ -66,7 +66,7 @@ conn = psycopg2.connect(
     password=PASSWORD
 )
 cur = conn.cursor()
-cur.execute('select id, user from users;')
+cur.execute('select id, name from users;')
 rows = cur.fetchall()
 
 
