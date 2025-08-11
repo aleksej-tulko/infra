@@ -87,10 +87,10 @@ def fetch_user_name(user_id: int) -> str | None:
         ) as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "SELECT name FROM users WHERE id = %s;", (user_id,)
+                    'SELECT name FROM users WHERE id = %s;', (user_id,)
                 )
-                r = cur.fetchone()
-                return r[0] if r else None
+                row = cur.fetchone()
+                return row[0] if row else None
     except Exception as e:
         logger.warning("DB lookup failed for user_id=%s: %s", user_id, e)
         return None
@@ -116,8 +116,7 @@ def consume_orders(consumer: Consumer) -> None:
                     for field in value.keys())
             ):
 
-                id = value.get('user_id')
-                name = user_id_map.get(id)
+                name = user_id_map.get(value.get('user_id'))
                 if name is None:
                     name = fetch_user_name(id)
                     if name:
