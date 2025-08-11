@@ -84,6 +84,8 @@ conn = psycopg2.connect(
 cur = conn.cursor()
 cur.execute('select name, id from users;')
 rows = cur.fetchall()
+cur.close()
+conn.close()
 
 user_id_map = {}
 
@@ -103,7 +105,7 @@ def consume_orders(consumer: Consumer) -> None:
 
             value = json.loads(msg.value().decode('utf-8')).get('payload', {})
 
-            if isinstance(value, dict) and (
+            if msg.topic() == ORDERS and isinstance(value, dict) and (
                 all(field in mandatory_orders_fields
                     for field in value.keys())
             ):
@@ -115,24 +117,27 @@ def consume_orders(consumer: Consumer) -> None:
                     date=datetime.fromtimestamp(
                         value.get('order_date') / 1e6,
                         tz=timezone.utc
-                    ).strftime('%Y-%m-%d %H:%M:%S')
+                        ).strftime('%Y-%m-%d %H:%M:%S')
                     )
                 )
-            elif isinstance(value, dict) and (
+            elif msg.topic() == USERS and isinstance(value, dict) and (
                 all(field in mandatory_users_fields
                     for field in value.keys())
             ):
-                consumer.commit(asynchronous=False)
 
-                logger.info(msg=LoggerMsg.USER_RECORD.format(
-                    user=value.get('name'),
-                    email=value.get('email'),
-                    date=datetime.fromtimestamp(
-                        value.get('created_at') / 1e6,
-                        tz=timezone.utc
-                    ).strftime('%Y-%m-%d %H:%M:%S')
+                if id is not None and name:
+                    user_id_map[id] = name
+                    logger.info(msg=LoggerMsg.USER_RECORD.format(
+                        user=value.get('name'),
+                        email=value.get('email'),
+                        date=datetime.fromtimestamp(
+                            value.get('created_at') / 1e6,
+                            tz=timezone.utc
+                            ).strftime('%Y-%m-%d %H:%M:%S')
+                        )
                     )
-                )
+                    consumer.commit(asynchronous=False)
+                    continue
             else:
                 print('Error')
 
