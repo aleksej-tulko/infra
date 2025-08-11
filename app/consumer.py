@@ -60,6 +60,7 @@ conf = {
 consumer = Consumer(conf)
 
 conn = psycopg2.connect(
+    host='localhost',
     dbname=DBNAME,
     user=USER,
     password=PASSWORD
