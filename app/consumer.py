@@ -94,8 +94,8 @@ def consume_infinite_loop(consumer: Consumer) -> None:
                 consumer.commit(asynchronous=False)
 
                 print(
-                    f'Клиент {user_id_map[value.get('user_id')]}, offset={msg.offset()}. '
-                    f'Размер сообщения - {len(msg.value())} байтов.'
+                    f'Клиент {user_id_map[value.get('user_id')]} '
+                    f'купил {value.get('product_name')}.'
                 )
             else:
                 print('Ошибка.')
