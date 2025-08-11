@@ -56,7 +56,7 @@ conf = {
 
 consumer = Consumer(conf)
 
-conn = psycopg2.Connection.connect("")
+conn = psycopg2.connect("")
 cur = conn.execute("select now()")
 
 
