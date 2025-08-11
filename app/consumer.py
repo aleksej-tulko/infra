@@ -49,11 +49,11 @@ def consume_infinite_loop(consumer: Consumer) -> None:
             if msg is None or msg.error():
                 continue
 
-            value = json.loads(msg.value().decode('utf-8'))
-            print(value.keys())
+            value = json.loads(msg.value().decode('utf-8')).get('payload', {})
+
             if isinstance(value, dict) and (
                 all(field in mandatory_message_fields
-                    for field in value.get('payload', {}.keys()))
+                    for field in value.keys())
             ):
                 consumer.commit(asynchronous=False)
 
